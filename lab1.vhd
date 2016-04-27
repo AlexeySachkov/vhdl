@@ -1,107 +1,154 @@
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
-use ieee.std_logic_arith.all;
-
-entity NOT_EL is
+entity JK is
   port(
-    A: in std_logic;
-    R: out std_logic
+    J, K, C: in BIT;
+    Q, NQ: out BIT
   );
 end entity;
 
-architecture Behavior of NOT_EL is
+architecture behaviour of JK is
+signal T: BIT;
 begin
-  process
-  begin
-    R <= not A;
-    wait for 120 ns;
-  end process;
+T <= '0';
+process(C)
+begin
+  if (C = '1') then
+    Q <= ((not T) and J) or (T and (not K));
+    NQ <= not Q;
+  end if;
+end process;
 end architecture;
 
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
-use ieee.std_logic_arith.all;
-
-entity AND_EL is
+entity CMP is
   port(
-    A, B: in std_logic;
-    R: out std_logic
+    C: in BIT;
+    A, B: in BIT_VECTOR(0 to 7);
+    O: out BIT
   );
 end entity;
 
-architecture Behavior of AND_EL is
+architecture behaviour of CMP is
+signal T: BIT;
 begin
-  process
-  begin
-    R <= A and B;
-    wait for 120 ns;
-  end process;
-end architecture;
+-- T <= '0';
+process(C)
+begin
+  if (A = B) then
+    O <= '1';
+  else
+    O <= '0';
+  end if;
+end process;
+end architecture; 
 
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
-use ieee.std_logic_arith.all;
-
-entity NOTAND_EL is
+entity Scheme is
   port(
-    A, B: in std_logic;
-    R: out std_logic
+    C, I: in BIT;
+    S: in BIT_VECTOR(0 to 7);
+    O: out BIT
   );
 end entity;
 
-architecture Structure of NOTAND_EL is
-component AND_EL
+architecture behaviour of Scheme is
+component JK is
   port(
-    A, B: in std_logic;
-    R: out std_logic
+    J, K, C: in BIT;
+    Q, NQ: out BIT
   );
 end component;
 
-component NOT_EL
+component CMP is
   port(
-    A: in std_logic;
-    R: out std_logic
+    C: in BIT;
+    A, B: in BIT_VECTOR(0 to 7);
+    O: out BIT
   );
 end component;
-
-signal T: std_logic;
+signal buf: BIT_VECTOR(0 to 7);
 
 begin
-  M1: AND_EL port map (A, B, T);
-  M2: NOT_EL port map (T, R);
+  JK1: JK port map(I, not I, C, buf(0));
+  JK2: JK port map(buf(0), not buf(0), C, buf(1));
+  JK3: JK port map(buf(1), not buf(1), C, buf(2));
+  JK4: JK port map(buf(2), not buf(2), C, buf(3));
+  JK5: JK port map(buf(3), not buf(3), C, buf(4));
+  JK6: JK port map(buf(4), not buf(4), C, buf(5));
+  JK7: JK port map(buf(5), not buf(5), C, buf(6));
+  JK8: JK port map(buf(6), not buf(6), C, buf(7));
+
+  RES: CMP port map(C, buf, S, O);
 end architecture;
 
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
-use ieee.std_logic_arith.all;
-
-entity RS is
+entity testbench is
   port(
-    R, S, C: in std_logic;
-    Q, NQ: out std_logic
+    O: out BIT
   );
 end entity;
 
-architecture Structure of RS is
-component NOTAND_EL
+architecture behaviour of testbench is
+component Scheme is
   port(
-    A, B: in std_logic;
-    R: out std_logic
+    C, I: in BIT;
+    S: in BIT_VECTOR(0 to 7);
+    O: out BIT
   );
 end component;
 
-signal SS, RR: std_logic;
-
+signal CHAR: BIT_VECTOR(0 to 7);
+signal C, I: BIT;
 begin
-  M1: NOTAND_EL port map (S, C, SS);
-  M2: NOTAND_EL port map (R, C, RR);
-  M3: NOTAND_EL port map (SS, NQ, Q);
-  M4: NOTAND_EL port map (RR, Q, NQ);
 
-  Q <= '0';
-  NQ <= '1';
+CHAR <= "01001011";
+
+SCH: Scheme port map(C, I, CHAR, O);
+
+process
+begin
+   C <= '0';
+wait for 10 ns;
+   I <= '1';
+   C <= '1';
+   wait for 10 ns;
+
+   C <= '0';
+wait for 10 ns;
+   I <= '1';
+   C <= '1';
+   wait for 10 ns;
+
+   C <= '0';
+wait for 10 ns;
+   I <= '0';
+   C <= '1';
+   wait for 10 ns;
+
+   C <= '0';
+wait for 10 ns;
+   I <= '1';
+   C <= '1';
+   wait for 10 ns;
+
+   C <= '0';
+wait for 10 ns;
+   I <= '0';
+   C <= '1';
+   wait for 10 ns;
+
+   C <= '0';
+wait for 10 ns;
+   I <= '0';
+   C <= '1';
+   wait for 10 ns;
+
+   C <= '0';
+wait for 10 ns;
+   I <= '1';
+   C <= '1';
+   wait for 10 ns;
+
+   C <= '0';
+wait for 10 ns;
+   I <= '0';
+   C <= '1';
+   wait for 10 ns;
+end process;
 end architecture;
