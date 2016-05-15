@@ -78,13 +78,13 @@ begin
   RES: CMP port map(C, buf, S, O);
 end architecture;
 
-entity testbench is
+entity testbench1 is
   port(
     O: out BIT
   );
 end entity;
 
-architecture behaviour of testbench is
+architecture behaviour of testbench1 is
 component Scheme is
   port(
     C, I: in BIT;
@@ -97,7 +97,7 @@ signal CHAR: BIT_VECTOR(0 to 7);
 signal C, I: BIT;
 begin
 
-CHAR <= "01001011";
+CHAR <= "01000111";
 
 SCH: Scheme port map(C, I, CHAR, O);
 
@@ -117,13 +117,13 @@ wait for 10 ns;
 
    C <= '0';
 wait for 10 ns;
-   I <= '0';
+   I <= '1';
    C <= '1';
    wait for 10 ns;
 
    C <= '0';
 wait for 10 ns;
-   I <= '1';
+   I <= '0';
    C <= '1';
    wait for 10 ns;
 
