@@ -1,33 +1,21 @@
-entity NOT1_EL is
+entity NOT_EL is
 	port(A: IN BIT; B: OUT BIT);
 end entity;
 
-architecture arch of NOT1_EL is
+architecture arch of NOT_EL is
 begin
 	B <= not A after 5 ns;
 end architecture;
 
-entity NOT4_EL is
-	port(A: IN BIT_VECTOR(0 to 3); B: OUT BIT_VECTOR(0 to 3));
-end entity;
-
-architecture arch of NOT4_EL is
-begin
-	B(0) <= not A(0) after 5 ns;
-	B(1) <= not A(1) after 5 ns;
-	B(2) <= not A(2) after 5 ns;
-	B(3) <= not A(3) after 5 ns;
-end architecture;
-
 entity OR_EL is
-	port(A1, A2, A3, A4, A5, A6, A7, A8: IN BIT; B: OUT BIT);
+	port(A1, A2, A3, A4, A5, A6: IN BIT; B: OUT BIT);
 end entity;
 
 architecture arch of OR_EL is
 begin
-process(A1, A2, A3, A4, A5, A6, A7, A8)
+process(A1, A2, A3, A4, A5, A6)
 begin
-	B <= A1 or A2 or A3 or A4 or A5 or A6 or A7 or A8 after 5 ns;
+	B <= A1 or A2 or A3 or A4 or A5 or A6 after 5 ns;
 end process;
 end architecture;
 
@@ -106,14 +94,11 @@ entity automaton is
 end entity;
 
 architecture arch of automaton is
-component NOT1_EL is
+component NOT_EL is
 	port(A: IN BIT; B: OUT BIT);
 end component;
-component NOT4_EL is
-	port(A: IN BIT_VECTOR(0 to 3); B: OUT BIT_VECTOR(0 to 3));
-end component;
 component OR_EL is
-	port(A1, A2, A3, A4, A5, A6, A7, A8: IN BIT; B: OUT BIT);
+	port(A1, A2, A3, A4, A5, A6: IN BIT; B: OUT BIT);
 end component;
 component AND_EL is
 	port(A, B: IN BIT; C: OUT BIT);
@@ -133,9 +118,12 @@ SIGNAL TS: BIT_VECTOR(0 to 3) := "0000";
 SIGNAL TMP: BIT_VECTOR(0 to 3);
 begin
 
-	NOT_Z: NOT4_EL port map(Z, NZ);
+	NZ0: NOT_EL port map(Z(0), NZ(0));
+	NZ1: NOT_EL port map(Z(1), NZ(1));
+	NZ2: NOT_EL port map(Z(2), NZ(2));
+	NZ3: NOT_EL port map(Z(3), NZ(3));
 
-	T0: OR_EL  port map(TQ(6), TQ(8), '0', '0', '0', '0', '0', '0', T(0));
+	T0: OR_EL  port map(TQ(6), TQ(8), '0', '0', '0', '0', T(0));
 	T1: AND_EL port map(NZ(2), T(0), T(1));
 	T2: AND_EL port map(Z(2), T(0), T(2));
 	T3: AND_EL port map(TQ(1), Z(0), T(3));
@@ -143,10 +131,10 @@ begin
 	T5: AND_EL port map(TQ(1), NZ(0), T(5));
 	T6: AND_EL port map(TQ(3), NZ(1), T(6));
 
-	S0: OR_EL port map(T(1), TQ(7), T(4), '0', '0', '0', '0', '0', S(0));
-	S1: OR_EL port map(TQ(3), TQ(4), TQ(5), T(2), '0', '0', '0', '0', S(1));
-	S2: OR_EL port map(T(3), TQ(2), TQ(4), TQ(5), T(2), T(4), '0', '0', S(2));
-	S3: OR_EL port map(TQ(0), T(5), TQ(2), T(6), T(2), TQ(7), '0', '0', S(3));
+	S0: OR_EL port map(T(1), TQ(7), T(4), '0', '0', '0', S(0));
+	S1: OR_EL port map(TQ(3), TQ(4), TQ(5), T(2), '0', '0', S(1));
+	S2: OR_EL port map(T(3), TQ(2), TQ(4), TQ(5), T(2), T(4), S(2));
+	S3: OR_EL port map(TQ(0), T(5), TQ(2), T(6), T(2), TQ(7), S(3));
 
 	D0: D port map(S(0), C, TS(0), TMP(0));
 	D1: D port map(S(1), C, TS(1), TMP(1));
